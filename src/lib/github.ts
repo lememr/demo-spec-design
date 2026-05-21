@@ -3,8 +3,8 @@
  * SPEC S2 — manual OAuth flow without NextAuth.
  */
 
-const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
+const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
   throw new Error("GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET are required");
