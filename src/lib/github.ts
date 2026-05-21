@@ -3,14 +3,17 @@
  * SPEC S2 — manual OAuth flow without NextAuth.
  */
 
-const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
-const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
+const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 
-if (!CLIENT_ID || !CLIENT_SECRET) {
-  throw new Error("GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET are required");
+function ensureEnv() {
+  if (!CLIENT_ID || !CLIENT_SECRET) {
+    throw new Error("GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET are required");
+  }
 }
 
 export function buildGitHubAuthUrl(state: string): string {
+  ensureEnv();
   const url = new URL("https://github.com/login/oauth/authorize");
   url.searchParams.set("client_id", CLIENT_ID);
   url.searchParams.set("redirect_uri", `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`);
@@ -20,6 +23,7 @@ export function buildGitHubAuthUrl(state: string): string {
 }
 
 export async function exchangeGitHubCode(code: string): Promise<string> {
+  ensureEnv();
   const res = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: {

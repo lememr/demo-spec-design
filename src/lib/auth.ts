@@ -2,11 +2,14 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is required");
-}
 
-const secret = new TextEncoder().encode(JWT_SECRET);
+const secret = JWT_SECRET ? new TextEncoder().encode(JWT_SECRET) : null;
+
+function ensureSecret() {
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is required");
+  }
+}
 
 export interface Session {
   id: string;
@@ -16,16 +19,18 @@ export interface Session {
 }
 
 export async function signSession(session: Session): Promise<string> {
+  ensureSecret();
   return new SignJWT(session as unknown as Record<string, unknown>)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(secret);
+    .sign(secret!);
 }
 
 export async function verifySession(token: string): Promise<Session | null> {
+  ensureSecret();
   try {
-    const { payload } = await jwtVerify(token, secret, { clockTolerance: 60 });
+    const { payload } = await jwtVerify(token, secret!, { clockTolerance: 60 });
     return payload as unknown as Session;
   } catch {
     return null;
