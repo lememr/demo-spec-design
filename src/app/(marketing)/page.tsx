@@ -1,6 +1,10 @@
-import { Hero } from "@/components/marketing/Hero";
-import { FeatureCard } from "@/components/marketing/FeatureCard";
-import { Footer } from "@/components/marketing/Footer";
+import dynamic from "next/dynamic";
+
+// SSR desabilitado: todos acessam window/document via typed.js, scrollreveal, animejs
+const Hero = dynamic(() => import("@/components/marketing/Hero").then(m => m.Hero), { ssr: false });
+const FeatureCard = dynamic(() => import("@/components/marketing/FeatureCard").then(m => m.FeatureCard), { ssr: false });
+const Footer = dynamic(() => import("@/components/marketing/Footer").then(m => m.Footer), { ssr: false });
+
 import { Activity, BarChart3, Shield } from "lucide-react";
 
 const features = [
