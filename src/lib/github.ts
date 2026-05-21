@@ -15,7 +15,7 @@ function ensureEnv() {
 export function buildGitHubAuthUrl(state: string): string {
   ensureEnv();
   const url = new URL("https://github.com/login/oauth/authorize");
-  url.searchParams.set("client_id", CLIENT_ID);
+  url.searchParams.set("client_id", CLIENT_ID!);
   url.searchParams.set("redirect_uri", `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`);
   url.searchParams.set("scope", "read:user user:email");
   url.searchParams.set("state", state);
@@ -31,8 +31,8 @@ export async function exchangeGitHubCode(code: string): Promise<string> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
+      client_id: CLIENT_ID!,
+      client_secret: CLIENT_SECRET!,
       code,
     }),
   });
