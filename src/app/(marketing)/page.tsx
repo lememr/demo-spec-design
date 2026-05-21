@@ -5,7 +5,7 @@ import { Hero } from "@/components/marketing/Hero";
 import { FeatureCard } from "@/components/marketing/FeatureCard";
 import { Footer } from "@/components/marketing/Footer";
 import { Activity, BarChart3, Shield } from "lucide-react";
-import { animate } from "animejs";
+import { animate, stagger } from "animejs";
 
 const features = [
   {

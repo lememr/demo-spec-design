@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { animate } from "animejs";
+import { animate, stagger } from "animejs";
 
 export function Footer() {
   const footerRef = useRef<HTMLElement>(null);
@@ -15,7 +15,7 @@ export function Footer() {
       opacity: [0, 0.7],
       y: [10, 0],
       duration: 500,
-      delay: animate.stagger(80),
+      delay: stagger(80),
       ease: "outQuad",
     });
   }, []);
