@@ -1,23 +1,33 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { animate, stagger } from "animejs";
 
 export function Footer() {
   const footerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (!footerRef.current) return;
+    let cleanup: (() => void) | undefined;
 
-    // anime.js — footer elements aparecem suavemente
-    const links = footerRef.current.querySelectorAll("a, p");
-    animate(links, {
-      opacity: [0, 0.7],
-      y: [10, 0],
-      duration: 500,
-      delay: stagger(80),
-      ease: "outQuad",
-    });
+    const init = async () => {
+      const { animate, stagger } = await import("animejs");
+      if (!footerRef.current) return;
+
+      // anime.js — footer elements aparecem suavemente
+      const links = footerRef.current.querySelectorAll("a, p");
+      animate(links, {
+        opacity: [0, 0.7],
+        y: [10, 0],
+        duration: 500,
+        delay: stagger(80),
+        ease: "outQuad",
+      });
+    };
+
+    init();
+
+    return () => {
+      if (cleanup) cleanup();
+    };
   }, []);
 
   return (

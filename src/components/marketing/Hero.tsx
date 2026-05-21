@@ -3,8 +3,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { Github } from "lucide-react";
-import Typed from "typed.js";
-import { animate } from "animejs";
 
 export function Hero() {
   const typedRef = useRef<HTMLSpanElement>(null);
@@ -13,53 +11,68 @@ export function Hero() {
   const cursorRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // typed.js — headline digitando letra por letra
-    const typed = new Typed(typedRef.current!, {
-      stringsElement: "#typed-strings",
-      typeSpeed: 60,
-      backSpeed: 40,
-      backDelay: 2000,
-      startDelay: 300,
-      loop: true,
-      smartBackspace: true,
-      showCursor: false, // cursor customizado via CSS
-      onComplete: () => {
-        // anime.js — subtitle fade-in suave quando typed completa primeiro loop
-        if (subtitleRef.current) {
-          animate(subtitleRef.current, {
-            opacity: [0, 1],
-            y: [10, 0],
-            duration: 800,
-            ease: "outQuad",
-          });
-        }
-      },
-    });
+    let typed: any;
+    let destroyed = false;
 
-    // anime.js — CTA pulse sutil para chamar atenção
-    if (ctaRef.current) {
-      animate(ctaRef.current, {
-        scale: [1, 1.03],
-        duration: 1200,
-        ease: "inOutSine",
-        loop: true,
-        alternate: true,
-      });
-    }
+    // Import dinamico no browser — nunca toca window no SSR
+    const init = async () => {
+      const [{ default: Typed }, { animate }] = await Promise.all([
+        import("typed.js"),
+        import("animejs"),
+      ]);
 
-    // anime.js — cursor piscando (simula cursor de terminal)
-    if (cursorRef.current) {
-      animate(cursorRef.current, {
-        opacity: [1, 0],
-        duration: 500,
-        ease: "step",
+      if (destroyed || !typedRef.current) return;
+
+      // typed.js — headline digitando letra por letra
+      typed = new Typed(typedRef.current, {
+        stringsElement: "#typed-strings",
+        typeSpeed: 60,
+        backSpeed: 40,
+        backDelay: 2000,
+        startDelay: 300,
         loop: true,
-        alternate: true,
+        smartBackspace: true,
+        showCursor: false, // cursor customizado via CSS
+        onComplete: () => {
+          if (subtitleRef.current && !destroyed) {
+            animate(subtitleRef.current, {
+              opacity: [0, 1],
+              y: [10, 0],
+              duration: 800,
+              ease: "outQuad",
+            });
+          }
+        },
       });
-    }
+
+      // anime.js — CTA pulse sutil
+      if (ctaRef.current && !destroyed) {
+        animate(ctaRef.current, {
+          scale: [1, 1.03],
+          duration: 1200,
+          ease: "inOutSine",
+          loop: true,
+          alternate: true,
+        });
+      }
+
+      // anime.js — cursor piscando
+      if (cursorRef.current && !destroyed) {
+        animate(cursorRef.current, {
+          opacity: [1, 0],
+          duration: 500,
+          ease: "step",
+          loop: true,
+          alternate: true,
+        });
+      }
+    };
+
+    init();
 
     return () => {
-      typed.destroy();
+      destroyed = true;
+      if (typed) typed.destroy();
     };
   }, []);
 

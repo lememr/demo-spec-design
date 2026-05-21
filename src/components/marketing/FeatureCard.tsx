@@ -3,8 +3,6 @@
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/Card";
 import { LucideIcon } from "lucide-react";
-import ScrollReveal from "scrollreveal";
-import { animate } from "animejs";
 
 interface FeatureCardProps {
   icon: LucideIcon;
@@ -18,40 +16,53 @@ export function FeatureCard({ icon: Icon, title, description, delay = 0 }: Featu
   const iconRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!cardRef.current) return;
+    let srInstance: any;
 
-    // scrollreveal — card aparece ao entrar na viewport
-    const sr = ScrollReveal({
-      origin: "bottom",
-      distance: "30px",
-      duration: 700,
-      delay: delay,
-      easing: "cubic-bezier(0.5, 0, 0, 1)",
-      viewFactor: 0.2,
-      reset: false, // nao reanima ao sair/entrar
-    });
+    const init = async () => {
+      const [{ default: ScrollReveal }, { animate }] = await Promise.all([
+        import("scrollreveal"),
+        import("animejs"),
+      ]);
 
-    sr.reveal(cardRef.current);
+      if (!cardRef.current) return;
 
-    // anime.js — stagger no hover: icone gira levemente
-    const card = cardRef.current;
-    const iconEl = iconRef.current;
-    if (iconEl) {
-      const enter = () => {
-        animate(iconEl, {
-          rotate: [0, 10, -10, 0],
-          duration: 400,
-          ease: "inOutSine",
-        });
-      };
-      card.addEventListener("mouseenter", enter);
-      return () => {
-        card.removeEventListener("mouseenter", enter);
-        sr.destroy();
-      };
-    }
+      // scrollreveal — card aparece ao entrar na viewport
+      srInstance = ScrollReveal({
+        origin: "bottom",
+        distance: "30px",
+        duration: 700,
+        delay: delay,
+        easing: "cubic-bezier(0.5, 0, 0, 1)",
+        viewFactor: 0.2,
+        reset: false,
+      });
 
-    return () => sr.destroy();
+      srInstance.reveal(cardRef.current);
+
+      // anime.js — stagger no hover: icone gira levemente
+      const card = cardRef.current;
+      const iconEl = iconRef.current;
+      if (iconEl) {
+        const enter = () => {
+          animate(iconEl, {
+            rotate: [0, 10, -10, 0],
+            duration: 400,
+            ease: "inOutSine",
+          });
+        };
+        card.addEventListener("mouseenter", enter);
+        return () => {
+          card.removeEventListener("mouseenter", enter);
+          if (srInstance) srInstance.destroy();
+        };
+      }
+    };
+
+    init();
+
+    return () => {
+      if (srInstance) srInstance.destroy();
+    };
   }, [delay]);
 
   return (
